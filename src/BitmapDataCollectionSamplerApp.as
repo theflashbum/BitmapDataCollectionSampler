@@ -9,12 +9,14 @@ import flash.display.Sprite;
 import flash.display.StageAlign;
 import flash.display.StageScaleMode;
 import flash.events.Event;
+import flash.events.KeyboardEvent;
 import flash.geom.Rectangle;
 import flash.net.URLRequest;
+import flash.ui.Keyboard;
 
 public class BitmapDataCollectionSamplerApp extends Sprite {
 
-    protected var preloadList:Array = ["image_1.jpg","image_3.jpg","image_1.jpg"];
+    protected var preloadList:Array = ["image_1.jpg","image_3.jpg","image_4.jpg","image_5.jpg"];
     protected static const BASE_URL:String = "images/";
     protected var currentlyLoading:String;
     protected var loader:Loader = new Loader();
@@ -40,6 +42,23 @@ public class BitmapDataCollectionSamplerApp extends Sprite {
     {
         createGridSampler();
         createScrubber();
+        addKeyboardListeners();
+    }
+
+    private function addKeyboardListeners():void {
+        addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown)
+    }
+
+    private function onKeyDown(event:KeyboardEvent):void {
+        switch(event.keyCode) {
+                case 39:
+                        scrubber.value += 1;
+                        break;
+                case 37:
+                        scrubber.value -= 1;
+                        break;
+        }
+        updateDisplayFromScrubber();
     }
 
     private function createScrubber():void {
@@ -48,8 +67,7 @@ public class BitmapDataCollectionSamplerApp extends Sprite {
         scrubber.y = 10;
     }
 
-    private function onSliderValueUpdate(event:Event):void {
-        //trace("New Slider Value", event.value);
+    protected function updateDisplayFromScrubber():void {
         var percent:Number = scrubber.value / 100;
         var s:Number = gridPreview.totalWidth;
         var t:Number = sampleArea.width;
@@ -57,7 +75,11 @@ public class BitmapDataCollectionSamplerApp extends Sprite {
         sampleArea.x = percent * (s - t);
 
         previewDisplay.bitmapData = gridPreview.sampleBitmapData(sampleArea);
+    }
 
+    private function onSliderValueUpdate(event:Event):void {
+        //trace("New Slider Value", event.value);
+        updateDisplayFromScrubber();
     }
 
 

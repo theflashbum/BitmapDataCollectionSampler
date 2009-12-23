@@ -23,21 +23,12 @@ public class BitmapDataCollectionSampler extends Sprite {
      * item's width.
      *
      * @param collection
-     * @param sampleScale
      */
     public function BitmapDataCollectionSampler(collection:Array) {
         bitmapDataCollection = collection.slice();
         init();
     }
 
-   /* protected function set sampleAreaWidth(value:Number):void {
-        _sampleAreaWidth = value;
-    }
-
-    public function get sampleAreaWidth():Number {
-        return _sampleAreaWidth;
-    }*/
-    
     public function get totalWidth():int {
         return _totalWidth;
     }
@@ -49,16 +40,7 @@ public class BitmapDataCollectionSampler extends Sprite {
     protected function init():void {
 
         indexCollection();
-
-        //createSampleArea();
-
     }
-
-    /*protected function createSampleArea():void {
-        sampleRect = new Rectangle(0, 0, _sampleAreaWidth, maxHeight);
-
-    }*/
-
 
     protected function indexCollection():void {
 
@@ -128,10 +110,14 @@ public class BitmapDataCollectionSampler extends Sprite {
         return (difference < 0) ? 0 : difference;
     }
 
+
+    protected function calculateLeftoverOffset(sampleArea:Rectangle, leftOver:Number):Point {
+        return new Point(sampleArea.width - leftOver, 0);
+    }
+
     protected function sample(sampleArea:Rectangle, output:BitmapData, offset:Point = null):void {
 
-        trace("sampleArea", sampleArea, offset);
-                        
+
         var collectionID:int = calculateCollectionStartIndex(new Point(sampleArea.x, 0));
 
         if(collectionID != -1)
@@ -151,21 +137,30 @@ public class BitmapDataCollectionSampler extends Sprite {
 
             sampleArea.x = point.x;
             sampleArea.y = 0;
-            
+
             output.copyPixels(sourceBitmapData,sampleArea,offset);
 
 
             if(leftOver > 0)
             {
+                trace("Leftover", leftOver);
                 //sampleArea = sampleArea.clone();//new Rectangle(sourceRect.x + sourceRect.width, 0, leftOver, maxHeight);
-                offset = new Point(sampleArea.width - leftOver, 0);
-                sampleArea.width = leftOver;
-                sampleArea.x = sourceRect.x + sourceRect.width;
-
+                offset = calculateLeftoverOffset(sampleArea, leftOver);
+                sampleArea = calculateLeftOverSampleArea(sampleArea, leftOver, sourceRect);
+                
                 sample(sampleArea, output, offset);
             }
 
         }
+    }
+
+
+    protected function calculateLeftOverSampleArea(sampleAreaSRC:Rectangle, leftOver:Number, sourceRect:Rectangle):Rectangle {
+        var sampleArea:Rectangle = sampleAreaSRC.clone();
+        sampleArea.width = leftOver;
+        sampleArea.x = sourceRect.x + sourceRect.width;
+
+        return sampleArea;
     }
 
     protected function calculateSamplePosition(sampleRect:Rectangle, sourceArea:Rectangle):Point {

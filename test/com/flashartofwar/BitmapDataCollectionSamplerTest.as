@@ -22,7 +22,7 @@ import org.flexunit.Assert;
             for (var i:int; i < 3; i ++)
             {
                 // Create dummy images
-                collection.push(new BitmapData(300, 100, false, 0x000000));
+                collection.push(new BitmapData(demoImageWidth, demoImageHeight, false, 0x000000));
             }
 
             super(collection);
@@ -31,23 +31,27 @@ import org.flexunit.Assert;
 
 		}
 
+        private const demoImageHeight:int = 680;
+
+        private var demoImageWidth:int = 1023;
+
 		[Test]
-		public function testFlashTDDProject() : void
+		public function testTotalWidth() : void
 		{
-			Assert.assertEquals(totalWidth, 300*3);
+			Assert.assertEquals(totalWidth, demoImageWidth*3);
 		}
 
         [Test]
         public function testMaxHeight():void
         {
-            Assert.assertEquals(maxHeight, 100);
+            Assert.assertEquals(maxHeight, demoImageHeight);
         }
 
         [Test]
         public function test1stCollectionRect():void
         {
             var rect:Rectangle = collectionRects[0];
-            Assert.assertEquals(rect.toString(), "(x=0, y=0, w=300, h=100)");
+            Assert.assertEquals(rect.toString(), "(x=0, y=0, w="+demoImageWidth+", h="+demoImageHeight+")");
 
         }
 
@@ -55,14 +59,14 @@ import org.flexunit.Assert;
         public function test2ndCollectionRect():void
         {
             var rect:Rectangle = collectionRects[1];
-            Assert.assertEquals(rect.toString(), "(x=301, y=0, w=300, h=100)");
+            Assert.assertEquals(rect.toString(), "(x="+(demoImageWidth+1)+", y=0, w="+demoImageWidth+", h="+demoImageHeight+")");
         }
 
         [Test]
         public function test3rdCollectionRect():void
         {
             var rect:Rectangle = collectionRects[2];
-            Assert.assertEquals(rect.toString(), "(x=602, y=0, w=300, h=100)");
+            Assert.assertEquals(rect.toString(), "(x="+(demoImageWidth*2+2)+", y=0, w="+demoImageWidth+", h="+demoImageHeight+")");
         }
 
         [Test]
@@ -75,8 +79,8 @@ import org.flexunit.Assert;
         [Test]
         public function testCalculateLeftoverForOutOfRangeSample():void
         {
-            var leftover:Number = calculateLeftOverValue(0, 500, collectionRects[0]);
-            Assert.assertEquals(leftover, 200);
+            var leftover:Number = calculateLeftOverValue(0, demoImageWidth+(demoImageWidth/2), collectionRects[0]);
+            Assert.assertEquals(leftover, demoImageWidth/2);
         }
 
         [Test]
@@ -88,13 +92,13 @@ import org.flexunit.Assert;
         [Test]
         public function testCalculateStartIndex1():void
         {
-            Assert.assertEquals(calculateCollectionStartIndex(new Point(320,0)), 1);
+            Assert.assertEquals(calculateCollectionStartIndex(new Point(demoImageWidth+30,0)), 1);
         }
 
         [Test]
         public function testCalculateStartIndex2():void
         {
-            Assert.assertEquals(calculateCollectionStartIndex(new Point(900,0)), 2);
+            Assert.assertEquals(calculateCollectionStartIndex(new Point(demoImageWidth * 2 + 30, 0)), 2);
         }
 
         [Test]
@@ -106,7 +110,7 @@ import org.flexunit.Assert;
         [Test]
         public function testCalculateStartIndexOutOfRange2():void
         {
-            Assert.assertEquals(calculateCollectionStartIndex(new Point(1000,0)), -1);
+            Assert.assertEquals(calculateCollectionStartIndex(new Point(demoImageWidth*(bitmapDataCollection.length+1),0)), -1);
         }
 
         [Test]
