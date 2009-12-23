@@ -42,9 +42,6 @@
 			<fileset dir="${report.loc}" defaultexcludes="false">
 				<include name="**/*" />
 			</fileset>
-			<fileset dir="${dist.loc}" defaultexcludes="false">
-				<include name="**/*" />
-			</fileset>
 		</delete>
 		<echo>[clean] Build and Report directories removed</echo>
 	</target>
@@ -147,7 +144,7 @@
 		<echo>[compile] Using Flex SDK at: ${FLEX_HOME}</echo>
 
 		<java jar="${FLEX_HOME}/lib/mxmlc.jar" dir="${FLEX_HOME}/frameworks" fork="true" failonerror="true">
-			<arg value="${main.src.loc}/${project.name}.as" />
+			<arg value="${main.src.loc}/${project.name}App.as" />
 			<arg value="-source-path=${main.src.loc}" />
 
 			<arg value="-output=${bin.loc}/swfs/${project.name.versioned}.swf" />
@@ -159,6 +156,7 @@
 			<arg value="-debug=true" />
 			<arg value="-verbose-stacktraces=true" />
 			<arg value="-headless-server=true" />
+            <arg value="-use-network=false" />
 		</java>
 
 		<echo>[compile] Debug SWF ${project.name.versioned}.swf created successfully</echo>

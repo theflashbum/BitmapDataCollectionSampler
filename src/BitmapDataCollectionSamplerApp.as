@@ -16,7 +16,7 @@ import flash.ui.Keyboard;
 
 public class BitmapDataCollectionSamplerApp extends Sprite {
 
-    protected var preloadList:Array = ["image_1.jpg","image_3.jpg","image_4.jpg","image_5.jpg"];
+    protected var preloadList:Array = ["image1.jpg","image3.jpg","image4.jpg","image5.jpg"];
     protected static const BASE_URL:String = "images/";
     protected var currentlyLoading:String;
     protected var loader:Loader = new Loader();
