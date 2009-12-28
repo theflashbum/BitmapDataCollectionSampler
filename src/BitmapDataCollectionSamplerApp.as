@@ -12,11 +12,10 @@ import flash.events.Event;
 import flash.events.KeyboardEvent;
 import flash.geom.Rectangle;
 import flash.net.URLRequest;
-import flash.ui.Keyboard;
 
 public class BitmapDataCollectionSamplerApp extends Sprite {
 
-    protected var preloadList:Array = ["image1.jpg","image3.jpg","image4.jpg","image5.jpg"];
+    protected var preloadList:Array = ["image1.jpg","image2.jpg","image4.jpg","image2.jpg","image2.jpg","image3.jpg","image4.jpg","image5.jpg","image1.jpg","image2.jpg","image4.jpg","image2.jpg"];
     protected static const BASE_URL:String = "images/";
     protected var currentlyLoading:String;
     protected var loader:Loader = new Loader();
@@ -25,7 +24,7 @@ public class BitmapDataCollectionSamplerApp extends Sprite {
     private var layers:Array = [];
     protected var previewScale:Number = .25;
     private var previewDisplay:Bitmap;
-    protected var sampleArea:Rectangle = new Rectangle(0,0,600,600);
+    protected var sampleArea:Rectangle = new Rectangle(0, 0, 960, 600);
 
     public function BitmapDataCollectionSamplerApp()
     {
@@ -50,13 +49,13 @@ public class BitmapDataCollectionSamplerApp extends Sprite {
     }
 
     private function onKeyDown(event:KeyboardEvent):void {
-        switch(event.keyCode) {
-                case 39:
-                        scrubber.value += 1;
-                        break;
-                case 37:
-                        scrubber.value -= 1;
-                        break;
+        switch (event.keyCode) {
+            case 39:
+                scrubber.value += 1;
+                break;
+            case 37:
+                scrubber.value -= 1;
+                break;
         }
         updateDisplayFromScrubber();
     }
@@ -78,7 +77,6 @@ public class BitmapDataCollectionSamplerApp extends Sprite {
     }
 
     private function onSliderValueUpdate(event:Event):void {
-        //trace("New Slider Value", event.value);
         updateDisplayFromScrubber();
     }
 

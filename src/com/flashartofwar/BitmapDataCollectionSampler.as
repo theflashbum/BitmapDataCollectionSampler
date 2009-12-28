@@ -1,7 +1,6 @@
 package com.flashartofwar {
 import flash.display.Bitmap;
 import flash.display.BitmapData;
-import flash.display.Shape;
 import flash.display.Sprite;
 import flash.geom.Point;
 import flash.geom.Rectangle;
@@ -15,6 +14,8 @@ public class BitmapDataCollectionSampler extends Sprite {
     protected var collectionTotal:int = 0;
     private var bitmapData:BitmapData;
     protected var copyPixelOffset:Point = new Point();
+
+    private var internalSampleArea:Rectangle;
 
     /**
      * This is used to debug the ExplorerCanvas. It is important to
@@ -66,7 +67,6 @@ public class BitmapDataCollectionSampler extends Sprite {
 
             // create a rect to represent the BitmapData
             rect = new Rectangle(lastX, 0, bmd.width, bmd.height);
-            trace(rect);
             collectionRects[i] = rect;
 
             lastX += bmd.width + 1;
@@ -84,7 +84,7 @@ public class BitmapDataCollectionSampler extends Sprite {
 
     protected function calculateCollectionStartIndex(sampleCoord:Point):int {
 
-        if(sampleCoord.x < 0)
+        if (sampleCoord.x < 0)
             return -1;
 
         var i:int;
@@ -103,24 +103,25 @@ public class BitmapDataCollectionSampler extends Sprite {
         return -1;
     }
 
-    protected function calculateLeftOverValue(offset:Number, sampleWidth:Number, sourceRect:Rectangle):Number {
 
-        var difference:Number = (offset + sampleWidth) - sourceRect.width;
-        
-        return (difference < 0) ? 0 : difference;
-    }
+    public function sampleBitmapData(sampleAreaSrc:Rectangle):BitmapData
+    {
+        // We clone this so it will not modify the ordinal sampleArea Rectangle that is passed in
+        internalSampleArea = sampleAreaSrc.clone();
 
+        //TODO this needs to be optimized?
+        bitmapData = new BitmapData(internalSampleArea.width, internalSampleArea.height, false, 0xFF0000);
 
-    protected function calculateLeftoverOffset(sampleArea:Rectangle, leftOver:Number):Point {
-        return new Point(sampleArea.width - leftOver, 0);
+        sample(internalSampleArea, bitmapData);
+
+        return bitmapData;
     }
 
     protected function sample(sampleArea:Rectangle, output:BitmapData, offset:Point = null):void {
 
-
         var collectionID:int = calculateCollectionStartIndex(new Point(sampleArea.x, 0));
 
-        if(collectionID != -1)
+        if (collectionID != -1)
         {
             var sourceRect:Rectangle = collectionRects[collectionID];
 
@@ -130,7 +131,7 @@ public class BitmapDataCollectionSampler extends Sprite {
 
             var sampleAreaX:Number = sampleArea.x;
 
-            if(!offset)
+            if (!offset)
                 offset = copyPixelOffset;
 
             var point:Point = calculateSamplePosition(sampleArea, sourceRect);
@@ -138,27 +139,41 @@ public class BitmapDataCollectionSampler extends Sprite {
             sampleArea.x = point.x;
             sampleArea.y = 0;
 
-            output.copyPixels(sourceBitmapData,sampleArea,offset);
+            output.copyPixels(sourceBitmapData, sampleArea, offset);
 
-
-            if(leftOver > 0)
+            if (leftOver > 0)
             {
-                trace("Leftover", leftOver);
-                //sampleArea = sampleArea.clone();//new Rectangle(sourceRect.x + sourceRect.width, 0, leftOver, maxHeight);
-                offset = calculateLeftoverOffset(sampleArea, leftOver);
-                sampleArea = calculateLeftOverSampleArea(sampleArea, leftOver, sourceRect);
-                
-                sample(sampleArea, output, offset);
+
+                var offsetX:Number = output.width - leftOver;
+
+                offset = new Point(output.width - leftOver, 0);//calculateLeftoverOffset(sampleArea, leftOver);
+                var leftOverSampleArea:Rectangle = calculateLeftOverSampleArea(sampleArea, leftOver, sourceRect);
+
+                sample(leftOverSampleArea, output, offset);
             }
 
         }
     }
 
 
+    protected function calculateLeftOverValue(offset:Number, sampleWidth:Number, sourceRect:Rectangle):Number {
+
+        //var difference:Number = (offset + sampleWidth) - sourceRect.width;
+        var difference:Number = (offset + sampleWidth) - (sourceRect.x + sourceRect.width);
+
+        return (difference < 0) ? 0 : difference;
+    }
+
+
+    protected function calculateLeftoverOffset(sampleArea:Rectangle, leftOver:Number):Point {
+
+        return new Point(sampleArea.width - leftOver, 0);
+    }
+
     protected function calculateLeftOverSampleArea(sampleAreaSRC:Rectangle, leftOver:Number, sourceRect:Rectangle):Rectangle {
         var sampleArea:Rectangle = sampleAreaSRC.clone();
-        sampleArea.width = leftOver;
-        sampleArea.x = sourceRect.x + sourceRect.width;
+        sampleArea.width = leftOver + 1;
+        sampleArea.x = sourceRect.x + sourceRect.width + 1;
 
         return sampleArea;
     }
@@ -170,23 +185,6 @@ public class BitmapDataCollectionSampler extends Sprite {
         return point;
     }
 
-    public function sampleBitmapData(sampleAreaSrc:Rectangle):BitmapData
-    {
-        trace("Sample BitmapData", sampleAreaSrc);
-        //updatePreview(collectionIndex, rect);
-
-        // We clone this so it will not modify the ordinal sampleArea Rectangle that is passed in
-        internalSampleArea = sampleAreaSrc.clone();
-
-        //TODO this needs to be optimized?
-        bitmapData = new BitmapData(internalSampleArea.width, internalSampleArea.height, false, 0xFF0000);
-
-        sample(internalSampleArea,bitmapData);
-
-        return bitmapData;
-    }
-
-    private var internalSampleArea:Rectangle;
 
 }
 }
