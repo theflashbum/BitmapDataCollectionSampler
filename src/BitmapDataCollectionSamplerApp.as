@@ -2,9 +2,12 @@ package {
 
 import com.bit101.components.HSlider;
 import com.flashartofwar.BitmapDataCollectionSampler;
+import com.flashartofwar.behaviors.EaseScrollBehavior;
+import com.flashartofwar.behaviors.MouseScrollBehavior;
 
 import flash.display.Bitmap;
 import flash.display.Loader;
+import flash.display.Shape;
 import flash.display.Sprite;
 import flash.display.StageAlign;
 import flash.display.StageScaleMode;
@@ -13,9 +16,11 @@ import flash.events.KeyboardEvent;
 import flash.geom.Rectangle;
 import flash.net.URLRequest;
 
+import net.hires.debug.Stats;
+
 public class BitmapDataCollectionSamplerApp extends Sprite {
 
-    protected var preloadList:Array = ["image1.jpg","image2.jpg","image4.jpg","image2.jpg","image2.jpg","image3.jpg","image4.jpg","image5.jpg","image1.jpg","image2.jpg","image4.jpg","image2.jpg"];
+    protected var preloadList:Array = ["image1.jpg","image2.jpg","image3.jpg","image4.jpg","image5.jpg","image1.jpg","image2.jpg","image3.jpg","image4.jpg","image5.jpg","image1.jpg"];
     protected static const BASE_URL:String = "images/";
     protected var currentlyLoading:String;
     protected var loader:Loader = new Loader();
@@ -25,6 +30,9 @@ public class BitmapDataCollectionSamplerApp extends Sprite {
     protected var previewScale:Number = .25;
     private var previewDisplay:Bitmap;
     protected var sampleArea:Rectangle = new Rectangle(0, 0, 960, 600);
+    private var easeScrollBehavior:EaseScrollBehavior;
+    private var mouseScrollBehavior:MouseScrollBehavior;
+    private var stats:Stats;
 
     public function BitmapDataCollectionSamplerApp()
     {
@@ -42,7 +50,39 @@ public class BitmapDataCollectionSamplerApp extends Sprite {
         createGridSampler();
         createScrubber();
         addKeyboardListeners();
+        createEaseScrollBehavior();
+        createMouseScrollBehavior();
+        activateLoop();
+        createStats();
     }
+
+    private function createStats():void {
+        stats = addChild(new Stats({ bg: 0x000000 })) as Stats;
+        stats.y = 30;
+    }
+
+
+    private function activateLoop():void {
+        addEventListener(Event.ENTER_FRAME, onEnterFrame);
+    }
+
+    private function onEnterFrame(event:Event):void {
+        loop();
+    }
+
+    private function createEaseScrollBehavior():void {
+        easeScrollBehavior = new EaseScrollBehavior(sampleArea, 0);
+    }
+
+    private function createMouseScrollBehavior():void {
+        mouseScrollBehavior = new MouseScrollBehavior(sampleArea, gridPreview.totalWidth);
+
+        var debugShape:Shape = new Shape();
+        addChild(debugShape);
+
+        //mouseScrollBehavior.displayHitRects(debugShape.graphics);
+    }
+
 
     private function addKeyboardListeners():void {
         addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown)
@@ -67,13 +107,8 @@ public class BitmapDataCollectionSamplerApp extends Sprite {
     }
 
     protected function updateDisplayFromScrubber():void {
-        var percent:Number = scrubber.value / 100;
-        var s:Number = gridPreview.totalWidth;
-        var t:Number = sampleArea.width;
 
-        sampleArea.x = percent * (s - t);
 
-        previewDisplay.bitmapData = gridPreview.sampleBitmapData(sampleArea);
     }
 
     private function onSliderValueUpdate(event:Event):void {
@@ -88,6 +123,7 @@ public class BitmapDataCollectionSamplerApp extends Sprite {
         previewDisplay = new Bitmap();
 
         addChild(previewDisplay);
+
 
     }
 
@@ -130,6 +166,20 @@ public class BitmapDataCollectionSamplerApp extends Sprite {
         currentlyLoading = null;
 
         preload();
+    }
+
+    public function loop():void
+    {
+        mouseScrollBehavior.calculateTargetPos(mouseX, mouseY);
+
+        var percent:Number = scrubber.value / 100;
+        var s:Number = gridPreview.totalWidth;
+        var t:Number = sampleArea.width;
+        easeScrollBehavior.targetX = percent * (s - t);
+        //
+        easeScrollBehavior.calculateScrollX();
+        //
+        previewDisplay.bitmapData = gridPreview.sampleBitmapData(sampleArea);
     }
 
 }

@@ -110,7 +110,7 @@ public class BitmapDataCollectionSampler extends Sprite {
         internalSampleArea = sampleAreaSrc.clone();
 
         //TODO this needs to be optimized?
-        bitmapData = new BitmapData(internalSampleArea.width, internalSampleArea.height, false, 0xFF0000);
+        bitmapData = new BitmapData(internalSampleArea.width, internalSampleArea.height, false, 0x000000);
 
         sample(internalSampleArea, bitmapData);
 
