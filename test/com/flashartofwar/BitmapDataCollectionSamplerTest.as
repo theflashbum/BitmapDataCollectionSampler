@@ -14,7 +14,7 @@ public class BitmapDataCollectionSamplerTest extends BitmapDataCollectionSampler
 
     public function BitmapDataCollectionSamplerTest()
     {
-        var collection:Array = [];
+        var collection:Vector.<BitmapData> = new Vector.<BitmapData>();
 
         for (var i:int; i < 3; i ++)
         {

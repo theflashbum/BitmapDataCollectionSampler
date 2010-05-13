@@ -43,6 +43,20 @@ public class EaseScrollBehavior extends EventDispatcher {
         }
     }
 
+    public function calculateScrollY():void
+    {
+        if ((target.y != _targetX))
+        {
+            //t: current time, b: beginning value, c: change in position, d: duration
+            var c:Number = _targetX - target.y;
+            var t:Number = .25;
+            var d:Number = .8;
+            var b:Number = target.y;
+            target.y = quadEaseInOut(t, b, c, d);
+
+        }
+    }
+
     /**
      * t: current time, b: beginning value, c: change in position, d: duration
      * @param t - current time
